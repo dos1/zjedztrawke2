@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Zjedz Trawkę 2
+Exec=zjedztrawke2
+Comment=libsuperderpy game engine examples
+Icon=zjedztrawke2
+Terminal=false
+Categories=Game;ArcadeGame;
