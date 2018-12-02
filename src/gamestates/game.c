@@ -22,8 +22,8 @@
 #include <libsuperderpy.h>
 
 #define SPEED 1.4
-#define MAZE_WIDTH 32
-#define MAZE_HEIGHT 32
+#define MAZE_WIDTH 6
+#define MAZE_HEIGHT 4
 
 enum direction {
 	up,
@@ -96,7 +96,7 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 					}
 					break;
 				case down:
-					if (player->y <= MAZE_HEIGHT) {
+					if (player->y < MAZE_HEIGHT - 1) {
 						if (data->map[player->x + (player->y + 1) * MAZE_WIDTH] != 1) {
 							player->y++;
 							player->angle = 0.5 * 3.1415;
@@ -112,7 +112,7 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 					}
 					break;
 				case right:
-					if (player->x <= MAZE_WIDTH) {
+					if (player->x < MAZE_WIDTH - 1) {
 						if (data->map[player->x + 1 + player->y * MAZE_WIDTH] != 1) {
 							player->x++;
 							player->angle = 0;
