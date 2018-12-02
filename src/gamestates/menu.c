@@ -31,6 +31,7 @@ struct GamestateResources {
 	ALLEGRO_FONT* font;
 	int option, blink;
 	int offset;
+	ALLEGRO_BITMAP* logo;
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
@@ -49,6 +50,8 @@ void Gamestate_Logic(struct Game* game, struct GamestateResources* data, double 
 void Gamestate_Draw(struct Game* game, struct GamestateResources* data) {
 	// Called as soon as possible, but no sooner than next Gamestate_Logic call.
 	// Draw everything to the screen here.
+
+	al_draw_bitmap(data->logo, 0, 0, 0);
 
 	int dy = data->offset;
 	if (!game->data->touch) {
@@ -338,6 +341,8 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	al_set_new_bitmap_flags(flags ^ ALLEGRO_MAG_LINEAR); // disable linear scaling for pixelarty appearance
 	data->font = al_create_builtin_font();
 	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
+
+	data->logo = al_load_bitmap(GetDataFilePath(game, "logo.png"));
 
 	al_set_new_bitmap_flags(flags);
 	return data;
