@@ -22,8 +22,8 @@
 #include <libsuperderpy.h>
 
 #define SPEED 1.4
-#define MAZE_WIDGTH 32
-#define MAZE_HIGHT 32
+#define MAZE_WIDTH 32
+#define MAZE_HEIGHT 32
 
 enum direction {
 	up,
@@ -89,15 +89,15 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 			switch (direction) {
 				case up:
 					if (player->y > 0) {
-						if (data->map[player->x + (player->y - 1) * MAZE_WIDGTH] != 1) {
+						if (data->map[player->x + (player->y - 1) * MAZE_WIDTH] != 1) {
 							player->y--;
 							player->angle = 1.5 * 3.1415;
 						}
 					}
 					break;
 				case down:
-					if (player->y <= MAZE_HIGHT) {
-						if (data->map[player->x + (player->y + 1) * MAZE_WIDGTH] != 1) {
+					if (player->y <= MAZE_HEIGHT) {
+						if (data->map[player->x + (player->y + 1) * MAZE_WIDTH] != 1) {
 							player->y++;
 							player->angle = 0.5 * 3.1415;
 						}
@@ -105,15 +105,15 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 					break;
 				case left:
 					if (player->x > 0) {
-						if (data->map[player->x - 1 + player->y * MAZE_WIDGTH] != 1) {
+						if (data->map[player->x - 1 + player->y * MAZE_WIDTH] != 1) {
 							player->x--;
 							player->angle = 3.1415;
 						}
 					}
 					break;
 				case right:
-					if (player->x <= MAZE_WIDGTH) {
-						if (data->map[player->x + 1 + player->y * MAZE_WIDGTH] != 1) {
+					if (player->x <= MAZE_WIDTH) {
+						if (data->map[player->x + 1 + player->y * MAZE_WIDTH] != 1) {
 							player->x++;
 							player->angle = 0;
 						}
@@ -146,10 +146,10 @@ static void DrawMap(struct Player* player,
 	int i, j;
 
 	for (i = -3; i < 3; i++) {
-		if (i + player->x < 0 || i + player->x >= MAZE_WIDGTH) { continue; }
+		if (i + player->x < 0 || i + player->x >= MAZE_WIDTH) { continue; }
 		for (j = -3; j < 3; j++) {
-			if (j + player->y < 0 || j + player->y >= MAZE_HIGHT) { continue; }
-			if (!data->map[i + player->x + (j + player->y) * MAZE_WIDGTH]) {
+			if (j + player->y < 0 || j + player->y >= MAZE_HEIGHT) { continue; }
+			if (!data->map[i + player->x + (j + player->y) * MAZE_WIDTH]) {
 				al_draw_bitmap_region(data->tile, 0, 0, 16, 16,
 					x + i * 16,
 					y + j * 16, 0);
@@ -428,9 +428,9 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	data->player2->rhythmPulse = malloc(sizeof(struct RhythmPulse));
 	data->player2->rhythmPulse->timer = 0;
 	data->player2->score = 0;
-	data->map = malloc(MAZE_WIDGTH * MAZE_HIGHT * sizeof(char));
-	GenerateMaze(data->map, MAZE_WIDGTH, MAZE_HIGHT);
-	ShowMaze(data->map, MAZE_WIDGTH, MAZE_HIGHT);
+	data->map = malloc(MAZE_WIDTH * MAZE_HEIGHT * sizeof(char));
+	GenerateMaze(data->map, MAZE_WIDTH, MAZE_HEIGHT);
+	ShowMaze(data->map, MAZE_WIDTH, MAZE_HEIGHT);
 	struct RhythmPulse* pulse = data->player1->rhythmPulse;
 	pulse->status = -1;
 	pulse->timer = 0;
@@ -459,9 +459,9 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	data->player2->y = 0;
 	int j;
 	char flag = 0;
-	for (i = MAZE_WIDGTH - 1; i >= 0; i--) {
-		for (j = MAZE_HIGHT - 1; j >= 0; j--) {
-			if (data->map[i + (j)*MAZE_WIDGTH] != 1) {
+	for (i = MAZE_WIDTH - 1; i >= 0; i--) {
+		for (j = MAZE_HEIGHT - 1; j >= 0; j--) {
+			if (data->map[i + (j)*MAZE_WIDTH] != 1) {
 				data->xGrass = i;
 				data->yGrass = j;
 				flag = 1;
