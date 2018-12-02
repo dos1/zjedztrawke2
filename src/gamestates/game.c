@@ -21,7 +21,7 @@
 #include "../common.h"
 #include <libsuperderpy.h>
 
-#define SPEED 1.4
+#define SPEED 1.1
 #define MAZE_WIDTH 6
 #define MAZE_HEIGHT 4
 
@@ -36,6 +36,7 @@ struct RhythmPulse {
 	float timer;
 	int status;
 	struct RhythmPulse* next;
+	int id;
 };
 
 struct GamestateResources {
@@ -53,6 +54,11 @@ struct GamestateResources {
 	char* map;
 	int xGrass;
 	int yGrass;
+
+	ALLEGRO_SAMPLE* music_sample;
+	unsigned int pos1, pos2;
+
+	ALLEGRO_SAMPLE* ding_sample;
 };
 
 struct Player {
@@ -62,7 +68,10 @@ struct Player {
 	ALLEGRO_BITMAP* player;
 	int score;
 	struct RhythmPulse* rhythmPulse;
+	ALLEGRO_SAMPLE_INSTANCE *music, *ding;
 };
+
+int Gamestate_ProgressCount = 25; // number of loading steps as reported by Gamestate_Load
 
 static float Abs(float a) {
 	if (a >= 0) {
@@ -120,6 +129,9 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 					}
 					break;
 			}
+			al_stop_sample_instance(player->ding);
+			al_set_sample_instance_speed(player->ding, 1.0 - Abs(point));
+			al_play_sample_instance(player->ding);
 			if (player->x == data->xGrass && player->y == data->yGrass) {
 				// winning condition
 			}
@@ -171,12 +183,11 @@ static void DrawMap(struct Player* player, struct Player* otherPlayer,
 	}
 }
 
-int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
-
 static void DeleteDeltaTimeFromPulse(struct RhythmPulse* pulse, float deltaTime,
 	struct Player* data) {
-	float progress = (data->score) / 2000.0f;
+	float progress = (data->score) / 20000.0f;
 	float delatTime = (deltaTime * SPEED) * ((progress + 1));
+	al_set_sample_instance_speed(data->music, delatTime / deltaTime);
 	if (pulse->timer > -0.25f && pulse->timer - delatTime < -0.25f &&
 		pulse->status == -1) {
 		pulse->status = 0;
@@ -198,8 +209,12 @@ static void DeleteDeltaTimeFromPulse(struct RhythmPulse* pulse, float deltaTime,
 static void MoveEnd(struct RhythmPulse* pulse, struct RhythmPulse* onEnd, float offset) {
 	if (pulse->next == NULL) {
 		pulse->next = onEnd;
-		onEnd->next = 0;
+		onEnd->next = NULL;
 		onEnd->status = -1;
+		onEnd->id = pulse->id + 1;
+		if (onEnd->id % 3 == 2) {
+			offset += 1.0;
+		}
 		onEnd->timer = pulse->timer + offset;
 	} else {
 		MoveEnd(pulse->next, onEnd, offset);
@@ -232,6 +247,7 @@ static void DrawAllPulse(struct RhythmPulse* pulse, struct Game* game,
 	al_draw_bitmap_region(data->pulseBitmap, 0, 0, 20, 20, x,
 		game->viewport.height / 2.0 - 10 + pulse->timer * 40,
 		0);
+	//al_draw_textf(data->font, al_map_rgb(0, 0, 0), x + 3, game->viewport.height / 2.0 - 10 + pulse->timer * 40 + 3, ALLEGRO_ALIGN_LEFT, "%d", pulse->id);
 
 	if (pulse->next) {
 		DrawAllPulse(pulse->next, game, data, x);
@@ -410,8 +426,7 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	int flags = al_get_new_bitmap_flags();
 	al_set_new_bitmap_flags(flags ^ ALLEGRO_MAG_LINEAR); // disable linear scaling for pixelarty appearance
 	data->font = al_create_builtin_font();
-	data->pulseBitmap =
-		al_load_bitmap(GetDataFilePath(game, "Sprites/rythmPulse.png"));
+	data->pulseBitmap = al_load_bitmap(GetDataFilePath(game, "Sprites/rythmPulse.png"));
 	data->pointer = al_load_bitmap(GetDataFilePath(game, "Sprites/line.png"));
 	data->tile = al_load_bitmap(GetDataFilePath(game, "Sprites/tile.png"));
 	data->grass = al_load_bitmap(GetDataFilePath(game, "Sprites/grass.png"));
@@ -422,16 +437,23 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	data->player1->text = "";
 	data->player1->rhythmPulse = malloc(sizeof(struct RhythmPulse));
 	data->player1->rhythmPulse->timer = 0;
+	data->player1->rhythmPulse->id = 0;
 	data->player1->score = 0;
 	data->player1->angle = 0.5 * ALLEGRO_PI;
+	(*progress)(game);
 
 	data->player1->player = al_load_bitmap(GetDataFilePath(game, "Sprites/swinka_kolor.png"));
+	(*progress)(game);
 	data->player2->player = al_load_bitmap(GetDataFilePath(game, "Sprites/swinka_czb.png"));
+	(*progress)(game);
+
 	data->player2->text = "";
 	data->player2->rhythmPulse = malloc(sizeof(struct RhythmPulse));
 	data->player2->rhythmPulse->timer = 0;
+	data->player2->rhythmPulse->id = 0;
 	data->player2->score = 0;
 	data->player2->angle = 0.5 * ALLEGRO_PI;
+	(*progress)(game);
 
 	data->map = malloc(MAZE_WIDTH * MAZE_HEIGHT * sizeof(char));
 	GenerateMaze(data->map, MAZE_WIDTH, MAZE_HEIGHT);
@@ -440,22 +462,32 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	pulse->status = -1;
 	pulse->timer = 0;
 	int i;
-	for (i = 0; i < 10; i++) {
+	for (i = 1; i <= 10; i++) {
+		if (i % 4 == 3) {
+			continue;
+		}
 		pulse->next = malloc(sizeof(struct RhythmPulse));
 		pulse = pulse->next;
-		pulse->timer = (float)i - 1;
+		pulse->timer = (float)i;
 		pulse->status = -1;
+		pulse->id = i;
+		(*progress)(game);
 	}
 	pulse->next = NULL;
 
 	struct RhythmPulse* pulse2 = data->player2->rhythmPulse;
 	pulse2->status = -1;
 	pulse2->timer = 0;
-	for (i = 0; i < 10; i++) {
+	for (i = 1; i <= 10; i++) {
+		if (i % 4 == 3) {
+			continue;
+		}
 		pulse2->next = malloc(sizeof(struct RhythmPulse));
 		pulse2 = pulse2->next;
-		pulse2->timer = (float)i - 1;
+		pulse2->timer = (float)i;
 		pulse2->status = -1;
+		pulse2->id = i;
+		(*progress)(game);
 	}
 	pulse2->next = NULL;
 	data->player1->x = 1;
@@ -478,6 +510,28 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 		}
 	}
 
+	data->music_sample = al_load_sample(GetDataFilePath(game, "music.flac"));
+	data->player1->music = al_create_sample_instance(data->music_sample);
+	al_attach_sample_instance_to_mixer(data->player1->music, game->audio.music);
+	al_set_sample_instance_playmode(data->player1->music, ALLEGRO_PLAYMODE_LOOP);
+	(*progress)(game);
+
+	data->player2->music = al_create_sample_instance(data->music_sample);
+	al_attach_sample_instance_to_mixer(data->player2->music, game->data->audio.music);
+	al_set_sample_instance_playmode(data->player2->music, ALLEGRO_PLAYMODE_LOOP);
+	(*progress)(game);
+
+	data->ding_sample = al_load_sample(GetDataFilePath(game, "ding.flac"));
+	data->player1->ding = al_create_sample_instance(data->ding_sample);
+	al_attach_sample_instance_to_mixer(data->player1->ding, game->audio.fx);
+	al_set_sample_instance_playmode(data->player1->ding, ALLEGRO_PLAYMODE_ONCE);
+	(*progress)(game);
+
+	data->player2->ding = al_create_sample_instance(data->ding_sample);
+	al_attach_sample_instance_to_mixer(data->player2->ding, game->data->audio.fx);
+	al_set_sample_instance_playmode(data->player2->ding, ALLEGRO_PLAYMODE_ONCE);
+	(*progress)(game);
+
 	al_set_new_bitmap_flags(flags);
 
 	return data;
@@ -494,6 +548,10 @@ void Gamestate_Unload(struct Game* game, struct GamestateResources* data) {
 	// Called when the gamestate library is being unloaded.
 	// Good place for freeing all allocated memory and resources.
 
+	al_destroy_sample_instance(data->player1->music);
+	al_destroy_sample_instance(data->player2->music);
+	al_destroy_sample(data->music_sample);
+
 	al_destroy_font(data->font);
 	FreePulse(data->player1->rhythmPulse);
 	FreePulse(data->player2->rhythmPulse);
@@ -506,6 +564,14 @@ void Gamestate_Unload(struct Game* game, struct GamestateResources* data) {
 void Gamestate_Start(struct Game* game, struct GamestateResources* data) {
 	// Called when this gamestate gets control. Good place for initializing state,
 	// playing music etc.
+	al_play_sample_instance(data->player1->music);
+	al_play_sample_instance(data->player2->music);
+
+	al_set_sample_instance_pan(data->player1->music, -1.0);
+	al_set_sample_instance_pan(data->player2->music, 1.0);
+
+	al_set_sample_instance_pan(data->player1->ding, -1.0);
+	al_set_sample_instance_pan(data->player2->ding, 1.0);
 }
 
 void Gamestate_Stop(struct Game* game, struct GamestateResources* data) {
@@ -516,10 +582,18 @@ void Gamestate_Pause(struct Game* game, struct GamestateResources* data) {
 	// Called when gamestate gets paused (so only Draw is being called, no Logic
 	// nor ProcessEvent)
 	// Pause your timers and/or sounds here.
+	data->pos1 = al_get_sample_instance_position(data->player1->music);
+	data->pos2 = al_get_sample_instance_position(data->player2->music);
+	al_set_sample_instance_playing(data->player1->music, false);
+	al_set_sample_instance_playing(data->player2->music, false);
 }
 
 void Gamestate_Resume(struct Game* game, struct GamestateResources* data) {
 	// Called when gamestate gets resumed. Resume your timers and/or sounds here.
+	al_set_sample_instance_playing(data->player1->music, true);
+	al_set_sample_instance_playing(data->player2->music, true);
+	al_set_sample_instance_position(data->player1->music, data->pos1);
+	al_set_sample_instance_position(data->player2->music, data->pos2);
 }
 
 void Gamestate_Reload(struct Game* game, struct GamestateResources* data) {

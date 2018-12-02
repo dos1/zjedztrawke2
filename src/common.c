@@ -66,7 +66,7 @@ struct CommonResources* CreateGameData(struct Game* game) {
 	data->audio.fx = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
 	data->audio.music = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
 	data->audio.voice = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-	al_attach_mixer_to_voice(game->audio.mixer, data->audio.v);
+	al_attach_mixer_to_voice(data->audio.mixer, data->audio.v);
 	al_attach_mixer_to_mixer(data->audio.fx, data->audio.mixer);
 	al_attach_mixer_to_mixer(data->audio.music, data->audio.mixer);
 	al_attach_mixer_to_mixer(data->audio.voice, data->audio.mixer);
