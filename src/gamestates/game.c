@@ -91,7 +91,7 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 					if (player->y > 0) {
 						if (data->map[player->x + (player->y - 1) * MAZE_WIDTH] != 1) {
 							player->y--;
-							player->angle = 1.5 * 3.1415;
+							player->angle = 1.5 * ALLEGRO_PI;
 						}
 					}
 					break;
@@ -99,7 +99,7 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 					if (player->y < MAZE_HEIGHT - 1) {
 						if (data->map[player->x + (player->y + 1) * MAZE_WIDTH] != 1) {
 							player->y++;
-							player->angle = 0.5 * 3.1415;
+							player->angle = 0.5 * ALLEGRO_PI;
 						}
 					}
 					break;
@@ -107,7 +107,7 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 					if (player->x > 0) {
 						if (data->map[player->x - 1 + player->y * MAZE_WIDTH] != 1) {
 							player->x--;
-							player->angle = 3.1415;
+							player->angle = ALLEGRO_PI;
 						}
 					}
 					break;
@@ -423,6 +423,7 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	data->player1->rhythmPulse = malloc(sizeof(struct RhythmPulse));
 	data->player1->rhythmPulse->timer = 0;
 	data->player1->score = 0;
+	data->player1->angle = 0.5 * ALLEGRO_PI;
 
 	data->player1->player = al_load_bitmap(GetDataFilePath(game, "Sprites/swinka_kolor.png"));
 	data->player2->player = al_load_bitmap(GetDataFilePath(game, "Sprites/swinka_czb.png"));
@@ -430,6 +431,8 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	data->player2->rhythmPulse = malloc(sizeof(struct RhythmPulse));
 	data->player2->rhythmPulse->timer = 0;
 	data->player2->score = 0;
+	data->player2->angle = 0.5 * ALLEGRO_PI;
+
 	data->map = malloc(MAZE_WIDTH * MAZE_HEIGHT * sizeof(char));
 	GenerateMaze(data->map, MAZE_WIDTH, MAZE_HEIGHT);
 	ShowMaze(data->map, MAZE_WIDTH, MAZE_HEIGHT);
