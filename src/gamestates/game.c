@@ -55,10 +55,13 @@ struct GamestateResources {
 	int xGrass;
 	int yGrass;
 
-	ALLEGRO_SAMPLE* music_sample;
 	unsigned int pos1, pos2;
 
-	ALLEGRO_SAMPLE* ding_sample;
+	ALLEGRO_SAMPLE *music_sample, *ding_sample, *tada_sample, *no_sample;
+
+	bool ended;
+	struct Player* winner;
+	struct Tween endtween;
 };
 
 struct Player {
@@ -68,10 +71,10 @@ struct Player {
 	ALLEGRO_BITMAP* player;
 	int score;
 	struct RhythmPulse* rhythmPulse;
-	ALLEGRO_SAMPLE_INSTANCE *music, *ding;
+	ALLEGRO_SAMPLE_INSTANCE *music, *ding, *tada, *no;
 };
 
-int Gamestate_ProgressCount = 25; // number of loading steps as reported by Gamestate_Load
+int Gamestate_ProgressCount = 29; // number of loading steps as reported by Gamestate_Load
 
 static float Abs(float a) {
 	if (a >= 0) {
@@ -80,7 +83,7 @@ static float Abs(float a) {
 	return -a;
 }
 
-static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
+static void IsGoodPressed(struct Game* game, struct RhythmPulse* pulse, struct Player* player,
 	struct GamestateResources* data, enum direction direction) {
 	float point = pulse->timer;
 	if (point <= 0.25f && point > -0.25f) {
@@ -134,6 +137,17 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 			al_play_sample_instance(player->ding);
 			if (player->x == data->xGrass && player->y == data->yGrass) {
 				// winning condition
+				data->ended = true;
+				data->winner = player;
+				data->endtween = Tween(game, 100.0, 0.0, TWEEN_STYLE_BOUNCE_OUT, 1.5);
+				al_stop_sample_instance(data->player1->music);
+				al_stop_sample_instance(data->player2->music);
+				al_play_sample_instance(player->tada);
+				if (player == data->player1) {
+					al_play_sample_instance(data->player2->no);
+				} else {
+					al_play_sample_instance(data->player1->no);
+				}
 			}
 
 		} else {
@@ -149,7 +163,7 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 		}
 	}
 	if (point <= -0.25f) {
-		IsGoodPressed(pulse->next, player, data, direction);
+		IsGoodPressed(game, pulse->next, player, data, direction);
 	}
 }
 
@@ -223,6 +237,11 @@ static void MoveEnd(struct RhythmPulse* pulse, struct RhythmPulse* onEnd, float 
 
 void Gamestate_Logic(struct Game* game, struct GamestateResources* data,
 	double delta) {
+	if (data->ended) {
+		UpdateTween(&data->endtween, delta);
+		return;
+	}
+
 	DeleteDeltaTimeFromPulse(data->player2->rhythmPulse, delta, data->player2);
 	DeleteDeltaTimeFromPulse(data->player1->rhythmPulse, delta, data->player1);
 	if (data->player1->rhythmPulse->timer < -5.0f) {
@@ -278,6 +297,19 @@ void Gamestate_Draw(struct Game* game, struct GamestateResources* data) {
 	al_draw_text(data->font, al_map_rgb(255, 255, 255),
 		game->viewport.width * 3 / 4.0, game->viewport.height / 1.3f,
 		ALLEGRO_ALIGN_CENTRE, data->player2->text);
+
+	if (data->ended) {
+		double offset = GetTweenValue(&data->endtween);
+
+		al_draw_filled_rectangle(0, 0, game->viewport.width, game->viewport.height, al_map_rgba(0, 0, 0, 222));
+
+		al_draw_bitmap(data->winner->player, game->viewport.width / 2.0 - al_get_bitmap_width(data->winner->player) / 2.0, game->viewport.height / 2.0 - 20 - offset, 0);
+		al_draw_textf(data->font, al_map_rgb(255, 255, 255), game->viewport.width / 2.0, game->viewport.height / 2.0 - offset, ALLEGRO_ALIGN_CENTER, "%s player wins!", data->winner == data->player1 ? "Left" : "Right");
+
+		if (fmod(game->time, 1.0) > 0.2) {
+			al_draw_text(data->font, al_map_rgb(255, 255, 255), game->viewport.width / 2.0, 140, ALLEGRO_ALIGN_CENTER, "<ESCAPE>");
+		}
+	}
 }
 
 void Gamestate_ProcessEvent(struct Game* game, struct GamestateResources* data,
@@ -290,38 +322,41 @@ void Gamestate_ProcessEvent(struct Game* game, struct GamestateResources* data,
 			game); // mark this gamestate to be stopped and unloaded
 		// When there are no active gamestates, the engine will quit.
 	}
+	if (data->ended) {
+		return;
+	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		ev->keyboard.keycode == ALLEGRO_KEY_A) {
-		IsGoodPressed(data->player1->rhythmPulse, data->player1, data, left);
+		IsGoodPressed(game, data->player1->rhythmPulse, data->player1, data, left);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_S)) {
-		IsGoodPressed(data->player1->rhythmPulse, data->player1, data, down);
+		IsGoodPressed(game, data->player1->rhythmPulse, data->player1, data, down);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_W)) {
-		IsGoodPressed(data->player1->rhythmPulse, data->player1, data, up);
+		IsGoodPressed(game, data->player1->rhythmPulse, data->player1, data, up);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_D)) {
-		IsGoodPressed(data->player1->rhythmPulse, data->player1, data, right);
+		IsGoodPressed(game, data->player1->rhythmPulse, data->player1, data, right);
 	}
 
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		ev->keyboard.keycode == ALLEGRO_KEY_LEFT) {
-		IsGoodPressed(data->player2->rhythmPulse, data->player2, data, left);
+		IsGoodPressed(game, data->player2->rhythmPulse, data->player2, data, left);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_DOWN)) {
-		IsGoodPressed(data->player2->rhythmPulse, data->player2, data, down);
+		IsGoodPressed(game, data->player2->rhythmPulse, data->player2, data, down);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_UP)) {
-		IsGoodPressed(data->player2->rhythmPulse, data->player2, data, up);
+		IsGoodPressed(game, data->player2->rhythmPulse, data->player2, data, up);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_RIGHT)) {
-		IsGoodPressed(data->player2->rhythmPulse, data->player2, data, right);
+		IsGoodPressed(game, data->player2->rhythmPulse, data->player2, data, right);
 	}
 }
 
@@ -532,6 +567,28 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	al_set_sample_instance_playmode(data->player2->ding, ALLEGRO_PLAYMODE_ONCE);
 	(*progress)(game);
 
+	data->no_sample = al_load_sample(GetDataFilePath(game, "no.flac"));
+	data->player1->no = al_create_sample_instance(data->no_sample);
+	al_attach_sample_instance_to_mixer(data->player1->no, game->audio.fx);
+	al_set_sample_instance_playmode(data->player1->no, ALLEGRO_PLAYMODE_ONCE);
+	(*progress)(game);
+
+	data->player2->no = al_create_sample_instance(data->no_sample);
+	al_attach_sample_instance_to_mixer(data->player2->no, game->data->audio.fx);
+	al_set_sample_instance_playmode(data->player2->no, ALLEGRO_PLAYMODE_ONCE);
+	(*progress)(game);
+
+	data->tada_sample = al_load_sample(GetDataFilePath(game, "tada.flac"));
+	data->player1->tada = al_create_sample_instance(data->tada_sample);
+	al_attach_sample_instance_to_mixer(data->player1->tada, game->audio.fx);
+	al_set_sample_instance_playmode(data->player1->tada, ALLEGRO_PLAYMODE_ONCE);
+	(*progress)(game);
+
+	data->player2->tada = al_create_sample_instance(data->tada_sample);
+	al_attach_sample_instance_to_mixer(data->player2->tada, game->data->audio.fx);
+	al_set_sample_instance_playmode(data->player2->tada, ALLEGRO_PLAYMODE_ONCE);
+	(*progress)(game);
+
 	al_set_new_bitmap_flags(flags);
 
 	return data;
@@ -572,6 +629,12 @@ void Gamestate_Start(struct Game* game, struct GamestateResources* data) {
 
 	al_set_sample_instance_pan(data->player1->ding, -1.0);
 	al_set_sample_instance_pan(data->player2->ding, 1.0);
+
+	al_set_sample_instance_pan(data->player1->no, -1.0);
+	al_set_sample_instance_pan(data->player2->no, 1.0);
+
+	al_set_sample_instance_pan(data->player1->tada, -1.0);
+	al_set_sample_instance_pan(data->player2->tada, 1.0);
 }
 
 void Gamestate_Stop(struct Game* game, struct GamestateResources* data) {
