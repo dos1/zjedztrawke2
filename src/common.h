@@ -29,6 +29,7 @@ struct CommonResources {
 	ALLEGRO_SAMPLE_INSTANCE* button;
 };
 
+void Speak(struct Game* game, char* text);
 struct CommonResources* CreateGameData(struct Game* game);
 void DestroyGameData(struct Game* game);
 bool GlobalEventHandler(struct Game* game, ALLEGRO_EVENT* ev);

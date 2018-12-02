@@ -21,6 +21,20 @@
 #include "common.h"
 #include <libsuperderpy.h>
 
+void Speak(struct Game* game, char* text) {
+	if (!game->config.voice) {
+		return;
+	}
+#ifndef ALLEGRO_UNIX
+	return;
+#else
+	char* buffer = malloc(255 * sizeof(char));
+	snprintf(buffer, 255, "espeak \"%s\"&", text);
+	system(buffer);
+	free(buffer);
+#endif
+}
+
 bool GlobalEventHandler(struct Game* game, ALLEGRO_EVENT* ev) {
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_M)) {
 		game->config.mute = !game->config.mute;
