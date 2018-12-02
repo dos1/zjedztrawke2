@@ -32,6 +32,9 @@ struct GamestateResources {
 	int option, blink;
 	int offset;
 	ALLEGRO_BITMAP* logo;
+
+	ALLEGRO_SAMPLE* menu_sample;
+	ALLEGRO_SAMPLE_INSTANCE* menu;
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
@@ -344,6 +347,11 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 
 	data->logo = al_load_bitmap(GetDataFilePath(game, "logo.png"));
 
+	data->menu_sample = al_load_sample(GetDataFilePath(game, "menu.flac"));
+	data->menu = al_create_sample_instance(data->menu_sample);
+	al_attach_sample_instance_to_mixer(data->menu, game->audio.music);
+	al_set_sample_instance_playmode(data->menu, ALLEGRO_PLAYMODE_LOOP);
+
 	al_set_new_bitmap_flags(flags);
 	return data;
 }
@@ -352,6 +360,7 @@ void Gamestate_Unload(struct Game* game, struct GamestateResources* data) {
 	// Called when the gamestate library is being unloaded.
 	// Good place for freeing all allocated memory and resources.
 	al_destroy_font(data->font);
+	al_destroy_sample_instance(data->menu);
 	free(data);
 }
 
@@ -361,6 +370,7 @@ void Gamestate_Start(struct Game* game, struct GamestateResources* data) {
 	data->option = 0;
 	data->blink = 0;
 	data->offset = 30;
+	al_play_sample_instance(data->menu);
 #ifdef ALLEGRO_ANDROID
 	game->data->touch = true;
 #endif
