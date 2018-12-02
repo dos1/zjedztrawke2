@@ -23,7 +23,7 @@
 #include <math.h>
 
 #define NEXT_GAMESTATE "iofist"
-#define SKIP_GAMESTATE "game"
+#define SKIP_GAMESTATE "menu"
 
 struct GamestateResources {
 	ALLEGRO_FONT* font;

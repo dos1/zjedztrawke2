@@ -24,6 +24,9 @@ struct CommonResources {
 		ALLEGRO_VOICE* v;
 		ALLEGRO_MIXER *mixer, *voice, *fx, *music;
 	} audio;
+	bool touch;
+	ALLEGRO_SAMPLE* button_sample;
+	ALLEGRO_SAMPLE_INSTANCE* button;
 };
 
 struct CommonResources* CreateGameData(struct Game* game);

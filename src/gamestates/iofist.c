@@ -22,7 +22,7 @@
 #include <libsuperderpy.h>
 
 #define NEXT_GAMESTATE "holypangolin"
-#define SKIP_GAMESTATE "game"
+#define SKIP_GAMESTATE "menu"
 
 struct GamestateResources {
 	// This struct is for every resource allocated and used by your gamestate.

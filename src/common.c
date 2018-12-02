@@ -45,6 +45,14 @@ bool GlobalEventHandler(struct Game* game, ALLEGRO_EVENT* ev) {
 		SetupViewport(game, game->viewport_config);
 		PrintConsole(game, "Fullscreen toggled");
 	}
+	if (ev->type == ALLEGRO_EVENT_TOUCH_BEGIN) {
+		game->data->touch = true;
+	}
+#ifndef ALLEGRO_ANDROID
+	if (ev->type == ALLEGRO_EVENT_KEY_DOWN) {
+		game->data->touch = false;
+	}
+#endif
 
 	return false;
 }
@@ -74,6 +82,10 @@ struct CommonResources* CreateGameData(struct Game* game) {
 	al_set_mixer_gain(data->audio.music, game->config.music / 10.0);
 	al_set_mixer_gain(data->audio.voice, game->config.voice / 10.0);
 	al_set_mixer_gain(data->audio.mixer, game->config.mute ? 0.0 : 1.0);
+
+	data->button_sample = al_load_sample(GetDataFilePath(game, "button.flac"));
+	data->button = al_create_sample_instance(data->button_sample);
+	al_attach_sample_instance_to_mixer(data->button, game->audio.fx);
 
 	return data;
 }
