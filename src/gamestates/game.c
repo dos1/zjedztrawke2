@@ -217,10 +217,10 @@ static void DrawMap(struct Player* player, struct Player* otherPlayer,
 
 static void DeleteDeltaTimeFromPulse(struct RhythmPulse* pulse, float deltaTime,
 	struct Player* data, struct Game* game) {
-	float progress = (data->score) / 20000.0f;
+	float progress = (data->score) / 10000.0f;
 	float speed = SPEED * ((progress + 1));
 	float delatTime = (deltaTime * SPEED) * ((progress + 1));
-	al_set_sample_instance_speed(data->music, speed / 1.165);
+	al_set_sample_instance_speed(data->music, speed / 1.1675);
 	if (pulse->timer > -0.25f && pulse->timer - delatTime < -0.25f &&
 		pulse->status == -1) {
 		pulse->status = 0;
