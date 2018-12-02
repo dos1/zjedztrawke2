@@ -97,6 +97,13 @@ static void AdjustOption(struct Game* game, struct GamestateResources* data) {
 
 void Gamestate_Logic(struct Game* game, struct GamestateResources* data, double delta) {
 	// Called 60 times per second. Here you should do all your game logic.
+
+}
+
+
+void Gamestate_Tick(struct Game* game, struct GamestateResources* data) {
+	// Called 60 times per second (by default). Here you should do all your game
+	// logic.
 	data->blink++;
 	if (data->blink >= 60) {
 		data->blink = 0;
