@@ -121,6 +121,7 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 					break;
 			}
 			if (player->x == data->xGrass && player->y == data->yGrass) {
+				// winning condition
 			}
 
 		} else {
@@ -403,11 +404,9 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	// things that
 	// require main OpenGL context.
 
-	struct GamestateResources* data =
-		calloc(1, sizeof(struct GamestateResources));
-	al_set_new_bitmap_flags(
-		al_get_new_bitmap_flags() ^
-		ALLEGRO_MAG_LINEAR); // disable linear scaling for pixelarty appearance
+	struct GamestateResources* data = calloc(1, sizeof(struct GamestateResources));
+	int flags = al_get_new_bitmap_flags();
+	al_set_new_bitmap_flags(flags ^ ALLEGRO_MAG_LINEAR); // disable linear scaling for pixelarty appearance
 	data->font = al_create_builtin_font();
 	data->pulseBitmap =
 		al_load_bitmap(GetDataFilePath(game, "Sprites/rythmPulse.png"));
@@ -473,6 +472,8 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 			break;
 		}
 	}
+
+	al_set_new_bitmap_flags(flags);
 
 	return data;
 }

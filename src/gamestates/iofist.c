@@ -65,9 +65,12 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	// create VBOs, etc. do it in Gamestate_PostLoad.
 
 	struct GamestateResources* data = calloc(1, sizeof(struct GamestateResources));
+	int flags = al_get_new_bitmap_flags();
+	al_set_new_bitmap_flags(flags ^ ALLEGRO_MAG_LINEAR); // disable linear scaling for pixelarty appearance
 
 	progress(game); // report that we progressed with the loading, so the engine can move a progress bar
 	data->logo = al_load_bitmap(GetDataFilePath(game, "Sprites/iofist.png"));
+	al_set_new_bitmap_flags(flags);
 	return data;
 }
 
