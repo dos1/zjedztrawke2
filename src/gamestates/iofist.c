@@ -21,37 +21,45 @@
 #include "../common.h"
 #include <libsuperderpy.h>
 
+
+#define NEXT_GAMESTATE "game"
+#define SKIP_GAMESTATE NEXT_GAMESTATE
+
+
+
 struct GamestateResources {
 	// This struct is for every resource allocated and used by your gamestate.
 	// It gets created on load and then gets passed around to all other function calls.
-	ALLEGRO_FONT* font;
-	int blink_counter;
+	float timer;
+	ALLEGRO_BITMAP* logo;
+	bool unused; // just so the struct is not 0 size, remove me when adding something
 };
 
-int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
+int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load; 0 when missing
 
 void Gamestate_Logic(struct Game* game, struct GamestateResources* data, double delta) {
-	// Called 60 times per second (by default). Here you should do all your game logic.
-	data->blink_counter++;
-	if (data->blink_counter >= 60) {
-		data->blink_counter = 0;
-	}
+	// Here you should do all your game logic as if <delta> seconds have passed.
+	data->timer+=delta;
+	if(data->timer>3)
+		SwitchCurrentGamestate(game, NEXT_GAMESTATE);
 }
 
+
 void Gamestate_Draw(struct Game* game, struct GamestateResources* data) {
-	// Called as soon as possible, but no sooner than next Gamestate_Logic call.
 	// Draw everything to the screen here.
-	if (data->blink_counter < 50) {
-		al_draw_text(data->font, al_map_rgb(255, 255, 255), game->viewport.width / 2.0, game->viewport.height / 2.0,
-			ALLEGRO_ALIGN_CENTRE, "Nothing to see here, move along!");
-	}
+	DrawCentered(data->logo,
+						  game->viewport.width / 2.0,
+						  game->viewport.height / 2.0f , 0);
+
 }
+
+
 
 void Gamestate_ProcessEvent(struct Game* game, struct GamestateResources* data, ALLEGRO_EVENT* ev) {
 	// Called for each event in Allegro event queue.
 	// Here you can handle user input, expiring timers etc.
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
-		UnloadCurrentGamestate(game); // mark this gamestate to be stopped and unloaded
+        SwitchCurrentGamestate(game, NEXT_GAMESTATE);
 		// When there are no active gamestates, the engine will quit.
 	}
 }
@@ -60,32 +68,37 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	// Called once, when the gamestate library is being loaded.
 	// Good place for allocating memory, loading bitmaps etc.
 	//
-	// NOTE: Depending on engine configuration, this may be called from a separate thread.
-	// Unless you're sure what you're doing, avoid using drawing calls and other things that
-	// require main OpenGL context.
+	// NOTE: There's no OpenGL context available here. If you want to prerender something,
+	// create VBOs, etc. do it in Gamestate_PostLoad.
 
 	struct GamestateResources* data = calloc(1, sizeof(struct GamestateResources));
-	al_set_new_bitmap_flags(al_get_new_bitmap_flags() ^ ALLEGRO_MAG_LINEAR); // disable linear scaling for pixelarty appearance
-	data->font = al_create_builtin_font();
+
 	progress(game); // report that we progressed with the loading, so the engine can move a progress bar
+	data->logo = al_load_bitmap(GetDataFilePath(game, "Sprites/iofist.png"));
 	return data;
 }
 
 void Gamestate_Unload(struct Game* game, struct GamestateResources* data) {
 	// Called when the gamestate library is being unloaded.
 	// Good place for freeing all allocated memory and resources.
-	al_destroy_font(data->font);
+	al_destroy_bitmap(data->logo);
 	free(data);
 }
 
 void Gamestate_Start(struct Game* game, struct GamestateResources* data) {
 	// Called when this gamestate gets control. Good place for initializing state,
 	// playing music etc.
-	data->blink_counter = 0;
 }
 
 void Gamestate_Stop(struct Game* game, struct GamestateResources* data) {
 	// Called when gamestate gets stopped. Stop timers, music etc. here.
+}
+
+// Optional endpoints:
+
+void Gamestate_PostLoad(struct Game* game, struct GamestateResources* data) {
+	// This is called in the main thread after Gamestate_Load has ended.
+	// Use it to prerender bitmaps, create VBOs, etc.
 }
 
 void Gamestate_Pause(struct Game* game, struct GamestateResources* data) {

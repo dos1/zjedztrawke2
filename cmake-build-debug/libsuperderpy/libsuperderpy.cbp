@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="libsuperderpy"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\libsuperderpy\;CMake Files\libsuperderpy\cmake\;CMake Files\libsuperderpy\src\;CMake Files\src\;CMake Files\src\gamestates\;CMake Files\data\;CMake Files\data\icons\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="libsuperderpy">
+				<Option output="/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/libsuperderpy.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-D_XOPEN_SOURCE=600"/>
+					<Add option="-DLIBSUPERDERPY_ORIENTATION_LANDSCAPE=true"/>
+					<Add option="-DLIBSUPERDERPY_GIT_REV=&quot;01eabcf&quot;"/>
+					<Add directory="/home/isaac/zjedztrawke2/libsuperderpy/src"/>
+					<Add directory="/home/isaac/zjedztrawke2/cmake-build-debug/gen"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/6/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/6/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/Makefile&quot;  VERBOSE=1 libsuperderpy"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="libsuperderpy/fast">
+				<Option output="/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/libsuperderpy.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-D_XOPEN_SOURCE=600"/>
+					<Add option="-DLIBSUPERDERPY_ORIENTATION_LANDSCAPE=true"/>
+					<Add option="-DLIBSUPERDERPY_GIT_REV=&quot;01eabcf&quot;"/>
+					<Add directory="/home/isaac/zjedztrawke2/libsuperderpy/src"/>
+					<Add directory="/home/isaac/zjedztrawke2/cmake-build-debug/gen"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/6/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/6/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/Makefile&quot;  VERBOSE=1 libsuperderpy/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/isaac/zjedztrawke2/cmake-build-debug/libsuperderpy/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/character.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/character.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/config.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/config.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/gamestate.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/gamestate.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/internal.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/internal.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/libsuperderpy.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/libsuperderpy.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/mainloop.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/mainloop.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/maths.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/maths.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/particle.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/particle.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/shader.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/shader.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/timeline.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/timeline.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/tween.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/tween.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/utils.c">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/utils.h">
+			<Option target="libsuperderpy"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libsuperderpy\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/FindAllegro5.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/FindAllegro5ACodec.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/FindAllegro5Audio.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/FindAllegro5Color.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/FindAllegro5Font.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/FindAllegro5Image.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/FindAllegro5Primitives.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/FindAllegro5TTF.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/FindAllegro5Video.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/SetPaths.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/cmake_uninstall.cmake.in">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/cmake/libsuperderpy.cmake">
+			<Option virtualFolder="CMake Files\libsuperderpy\cmake\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libsuperderpy\src\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/libsuperderpy/src/defines.h.in">
+			<Option virtualFolder="CMake Files\libsuperderpy\src\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/src/gamestates/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\gamestates\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/data/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\data\"/>
+		</Unit>
+		<Unit filename="/home/isaac/zjedztrawke2/data/icons/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\data\icons\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
