@@ -141,7 +141,7 @@ static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 	}
 }
 
-static void DrawMap(struct Player* player,
+static void DrawMap(struct Player* player, struct Player* otherPlayer,
 	struct GamestateResources* data, float x, float y) {
 	int i, j;
 
@@ -149,7 +149,8 @@ static void DrawMap(struct Player* player,
 		if (i + player->x < 0 || i + player->x >= MAZE_WIDTH) { continue; }
 		for (j = -3; j < 3; j++) {
 			if (j + player->y < 0 || j + player->y >= MAZE_HEIGHT) { continue; }
-			if (!data->map[i + player->x + (j + player->y) * MAZE_WIDTH]) {
+			int id = i + player->x + (j + player->y) * MAZE_WIDTH;
+			if (!data->map[id]) {
 				al_draw_bitmap_region(data->tile, 0, 0, 16, 16,
 					x + i * 16,
 					y + j * 16, 0);
@@ -158,6 +159,13 @@ static void DrawMap(struct Player* player,
 				al_draw_bitmap_region(data->grass, 0, 0, 16, 16,
 					x + i * 16,
 					y + j * 16, 0);
+			}
+
+			if (id == (otherPlayer->x + otherPlayer->y * MAZE_WIDTH)) {
+				al_draw_tinted_rotated_bitmap(otherPlayer->player, al_map_rgb(96, 96, 96), 8, 8, x + i * 16 - 8 + 16, y + j * 16 - 8 + 16, otherPlayer->angle, 0);
+			}
+			if (id == (player->x + player->y * MAZE_WIDTH)) {
+				al_draw_rotated_bitmap(player->player, 8, 8, x + i * 16 - 8 + 16, y + j * 16 - 8 + 16, player->angle, 0);
 			}
 		}
 	}
@@ -234,8 +242,9 @@ void Gamestate_Draw(struct Game* game, struct GamestateResources* data) {
 	// Called as soon as possible, but no sooner than next Gamestate_Logic call.
 	// Draw everything to the screen here.
 
-	DrawMap(data->player1, data, 80, 60);
-	DrawMap(data->player2, data, 250, 60);
+	DrawMap(data->player1, data->player2, data, 80, 60);
+	DrawMap(data->player2, data->player1, data, 250, 60);
+
 	DrawAllPulse(data->player1->rhythmPulse, game, data,
 		game->viewport.width / 2.0 - 25);
 	DrawAllPulse(data->player2->rhythmPulse, game, data,
@@ -253,13 +262,6 @@ void Gamestate_Draw(struct Game* game, struct GamestateResources* data) {
 	al_draw_text(data->font, al_map_rgb(255, 255, 255),
 		game->viewport.width * 3 / 4.0, game->viewport.height / 1.3f,
 		ALLEGRO_ALIGN_CENTRE, data->player2->text);
-
-	al_draw_rotated_bitmap(data->player1->player, 8, 8,
-		88,
-		68, data->player1->angle, 0);
-	al_draw_rotated_bitmap(data->player2->player, 8, 8,
-		258,
-		68, data->player2->angle, 0);
 }
 
 void Gamestate_ProcessEvent(struct Game* game, struct GamestateResources* data,
