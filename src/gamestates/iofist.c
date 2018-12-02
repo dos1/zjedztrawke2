@@ -21,45 +21,38 @@
 #include "../common.h"
 #include <libsuperderpy.h>
 
-
 #define NEXT_GAMESTATE "game"
 #define SKIP_GAMESTATE NEXT_GAMESTATE
-
-
 
 struct GamestateResources {
 	// This struct is for every resource allocated and used by your gamestate.
 	// It gets created on load and then gets passed around to all other function calls.
 	float timer;
 	ALLEGRO_BITMAP* logo;
-	bool unused; // just so the struct is not 0 size, remove me when adding something
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load; 0 when missing
 
 void Gamestate_Logic(struct Game* game, struct GamestateResources* data, double delta) {
 	// Here you should do all your game logic as if <delta> seconds have passed.
-	data->timer+=delta;
-	if(data->timer>3)
+	data->timer += delta;
+	if (data->timer > 3) {
 		SwitchCurrentGamestate(game, NEXT_GAMESTATE);
+	}
 }
-
 
 void Gamestate_Draw(struct Game* game, struct GamestateResources* data) {
 	// Draw everything to the screen here.
 	DrawCentered(data->logo,
-						  game->viewport.width / 2.0,
-						  game->viewport.height / 2.0f , 0);
-
+		game->viewport.width / 2.0,
+		game->viewport.height / 2.0f, 0);
 }
-
-
 
 void Gamestate_ProcessEvent(struct Game* game, struct GamestateResources* data, ALLEGRO_EVENT* ev) {
 	// Called for each event in Allegro event queue.
 	// Here you can handle user input, expiring timers etc.
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
-        SwitchCurrentGamestate(game, NEXT_GAMESTATE);
+		SwitchCurrentGamestate(game, NEXT_GAMESTATE);
 		// When there are no active gamestates, the engine will quit.
 	}
 }

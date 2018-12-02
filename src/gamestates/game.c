@@ -25,15 +25,17 @@
 #define MAZE_WIDGTH 32
 #define MAZE_HIGHT 32
 
-enum direction { up,
+enum direction {
+	up,
 	down,
 	left,
-	right };
+	right
+};
 
-struct RythmPulse {
+struct RhythmPulse {
 	float timer;
 	int status;
-	struct RythmPulse* next;
+	struct RhythmPulse* next;
 };
 
 struct GamestateResources {
@@ -56,24 +58,25 @@ struct GamestateResources {
 struct Player {
 	int x, y;
 	char* text;
-	float anlge;
+	float angle;
 	ALLEGRO_BITMAP* player;
 	int score;
-	struct RythmPulse* rythmPulse;
+	struct RhythmPulse* rhythmPulse;
 };
 
-float Abs(float a) {
+static float Abs(float a) {
 	if (a >= 0) {
 		return a;
 	}
 	return -a;
 }
-void IsGoodPressed(struct RythmPulse* pulse, struct Player* player,
+
+static void IsGoodPressed(struct RhythmPulse* pulse, struct Player* player,
 	struct GamestateResources* data, enum direction direction) {
 	float point = pulse->timer;
 	if (point <= 0.25f && point > -0.25f) {
 		if (Abs(point) <= 0.25f && pulse->status == -1) {
-			pulse->status = 100 - Abs((point)*400);
+			pulse->status = (int)(100 - Abs((point)*400));
 			player->text = "Good!";
 			player->score += pulse->status;
 			if (Abs(point) <= 0.15f) {
@@ -86,40 +89,38 @@ void IsGoodPressed(struct RythmPulse* pulse, struct Player* player,
 			switch (direction) {
 				case up:
 					if (player->y > 0) {
-						if (data->map[player->x + (player->y - 1) * MAZE_WIDGTH]!=1) {
+						if (data->map[player->x + (player->y - 1) * MAZE_WIDGTH] != 1) {
 							player->y--;
-							player->anlge =1.5*3.1415;
+							player->angle = 1.5 * 3.1415;
 						}
 					}
 					break;
 				case down:
-					if (player->y <= MAZE_HIGHT ) {
-						if (data->map[player->x + (player->y + 1) * MAZE_WIDGTH]!=1) {
+					if (player->y <= MAZE_HIGHT) {
+						if (data->map[player->x + (player->y + 1) * MAZE_WIDGTH] != 1) {
 							player->y++;
-							player->anlge =0.5*3.1415;
+							player->angle = 0.5 * 3.1415;
 						}
 					}
 					break;
 				case left:
 					if (player->x > 0) {
-						if (data->map[player->x - 1 + player->y * MAZE_WIDGTH]!=1) {
+						if (data->map[player->x - 1 + player->y * MAZE_WIDGTH] != 1) {
 							player->x--;
-							player->anlge =3.1415;
+							player->angle = 3.1415;
 						}
 					}
 					break;
 				case right:
-					if (player->x <= MAZE_WIDGTH ) {
-						if (data->map[player->x + 1 + player->y * MAZE_WIDGTH]!=1) {
+					if (player->x <= MAZE_WIDGTH) {
+						if (data->map[player->x + 1 + player->y * MAZE_WIDGTH] != 1) {
 							player->x++;
-							player->anlge =0;
+							player->angle = 0;
 						}
 					}
 					break;
 			}
-			if(player->x==data->xGrass && player ->y == data->yGrass)
-			{
-
+			if (player->x == data->xGrass && player->y == data->yGrass) {
 			}
 
 		} else {
@@ -139,35 +140,31 @@ void IsGoodPressed(struct RythmPulse* pulse, struct Player* player,
 	}
 }
 
-void DrawMap(struct Player* player,
-			 struct GamestateResources* data, float x, float y)
-{
-	int i,j;
+static void DrawMap(struct Player* player,
+	struct GamestateResources* data, float x, float y) {
+	int i, j;
 
-	for(i=-3;i<3;i++)
-	{
-		if(i+player->x<0 || i+player->x>= MAZE_WIDGTH ) continue;
-		for(j=-3;j<3;j++)
-		{
-			if(j+player->y<0 || j+player->y>= MAZE_HIGHT ) continue;
-			if(!data->map[i+player->x + (j+player->y)*MAZE_WIDGTH])
+	for (i = -3; i < 3; i++) {
+		if (i + player->x < 0 || i + player->x >= MAZE_WIDGTH) { continue; }
+		for (j = -3; j < 3; j++) {
+			if (j + player->y < 0 || j + player->y >= MAZE_HIGHT) { continue; }
+			if (!data->map[i + player->x + (j + player->y) * MAZE_WIDGTH]) {
 				al_draw_bitmap_region(data->tile, 0, 0, 16, 16,
-									  x+ i*16,
-									  y+ j*16, 0);
-			if(j+player->y == data->yGrass && i+player->x == data->xGrass)
+					x + i * 16,
+					y + j * 16, 0);
+			}
+			if (j + player->y == data->yGrass && i + player->x == data->xGrass) {
 				al_draw_bitmap_region(data->grass, 0, 0, 16, 16,
-									  x+ i*16,
-									  y+ j*16, 0);
-
-
+					x + i * 16,
+					y + j * 16, 0);
+			}
 		}
 	}
 }
 
-int Gamestate_ProgressCount =
-	1; // number of loading steps as reported by Gamestate_Load
+int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
 
-void DeleteDeltaTimeFromPulse(struct RythmPulse* pulse, float deltaTime,
+static void DeleteDeltaTimeFromPulse(struct RhythmPulse* pulse, float deltaTime,
 	struct Player* data) {
 	float progress = (data->score) / 2000.0f;
 	float delatTime = (deltaTime * SPEED) * ((progress + 1));
@@ -188,7 +185,8 @@ void DeleteDeltaTimeFromPulse(struct RythmPulse* pulse, float deltaTime,
 		DeleteDeltaTimeFromPulse(pulse->next, deltaTime, data);
 	}
 }
-void MoveEnd(struct RythmPulse* pulse, struct RythmPulse* onEnd, float offset) {
+
+static void MoveEnd(struct RhythmPulse* pulse, struct RhythmPulse* onEnd, float offset) {
 	if (pulse->next == NULL) {
 		pulse->next = onEnd;
 		onEnd->next = 0;
@@ -201,17 +199,17 @@ void MoveEnd(struct RythmPulse* pulse, struct RythmPulse* onEnd, float offset) {
 
 void Gamestate_Logic(struct Game* game, struct GamestateResources* data,
 	double delta) {
-	DeleteDeltaTimeFromPulse(data->player2->rythmPulse, delta, data->player2);
-	DeleteDeltaTimeFromPulse(data->player1->rythmPulse, delta, data->player1);
-	if (data->player1->rythmPulse->timer < -5.0f) {
-		struct RythmPulse* pulse = data->player1->rythmPulse;
-		data->player1->rythmPulse = data->player1->rythmPulse->next;
-		MoveEnd(data->player1->rythmPulse, pulse, 1);
+	DeleteDeltaTimeFromPulse(data->player2->rhythmPulse, delta, data->player2);
+	DeleteDeltaTimeFromPulse(data->player1->rhythmPulse, delta, data->player1);
+	if (data->player1->rhythmPulse->timer < -5.0f) {
+		struct RhythmPulse* pulse = data->player1->rhythmPulse;
+		data->player1->rhythmPulse = data->player1->rhythmPulse->next;
+		MoveEnd(data->player1->rhythmPulse, pulse, 1);
 	}
-	if (data->player2->rythmPulse->timer < -5.0f) {
-		struct RythmPulse* pulse = data->player2->rythmPulse;
-		data->player2->rythmPulse = data->player2->rythmPulse->next;
-		MoveEnd(data->player2->rythmPulse, pulse, 1);
+	if (data->player2->rhythmPulse->timer < -5.0f) {
+		struct RhythmPulse* pulse = data->player2->rhythmPulse;
+		data->player2->rhythmPulse = data->player2->rhythmPulse->next;
+		MoveEnd(data->player2->rhythmPulse, pulse, 1);
 	}
 }
 
@@ -220,7 +218,7 @@ void Gamestate_Tick(struct Game* game, struct GamestateResources* data) {
 	// logic.
 }
 
-void DrawAllPulse(struct RythmPulse* pulse, struct Game* game,
+static void DrawAllPulse(struct RhythmPulse* pulse, struct Game* game,
 	struct GamestateResources* data, float x) {
 	al_draw_bitmap_region(data->pulseBitmap, 0, 0, 20, 20, x,
 		game->viewport.height / 2.0 - 10 + pulse->timer * 40,
@@ -235,11 +233,11 @@ void Gamestate_Draw(struct Game* game, struct GamestateResources* data) {
 	// Called as soon as possible, but no sooner than next Gamestate_Logic call.
 	// Draw everything to the screen here.
 
-	DrawMap(data->player1,data,80,60);
-	DrawMap(data->player2,data,250,60);
-	DrawAllPulse(data->player1->rythmPulse, game, data,
+	DrawMap(data->player1, data, 80, 60);
+	DrawMap(data->player2, data, 250, 60);
+	DrawAllPulse(data->player1->rhythmPulse, game, data,
 		game->viewport.width / 2.0 - 25);
-	DrawAllPulse(data->player2->rythmPulse, game, data,
+	DrawAllPulse(data->player2->rhythmPulse, game, data,
 		game->viewport.width / 2.0 + 5);
 	al_draw_bitmap_region(data->pointer, 0, 0, 20, 20,
 		game->viewport.width / 2.0 - 25,
@@ -248,20 +246,19 @@ void Gamestate_Draw(struct Game* game, struct GamestateResources* data) {
 		game->viewport.width / 2.0 + 5,
 		game->viewport.height / 2.0f - 10, 0);
 
-	al_draw_text(data->font, al_map_rgb(255, 255, 255), game->viewport.width / 4,
+	al_draw_text(data->font, al_map_rgb(255, 255, 255), game->viewport.width / 4.0,
 		game->viewport.height / 1.3f, ALLEGRO_ALIGN_CENTRE,
 		data->player1->text);
 	al_draw_text(data->font, al_map_rgb(255, 255, 255),
-		game->viewport.width * 3 / 4, game->viewport.height / 1.3f,
+		game->viewport.width * 3 / 4.0, game->viewport.height / 1.3f,
 		ALLEGRO_ALIGN_CENTRE, data->player2->text);
 
-
 	al_draw_rotated_bitmap(data->player1->player, 8, 8,
-						  88,
-						  68, data->player1->anlge,0);
+		88,
+		68, data->player1->angle, 0);
 	al_draw_rotated_bitmap(data->player2->player, 8, 8,
-						   258,
-						   68, data->player2->anlge,0);
+		258,
+		68, data->player2->angle, 0);
 }
 
 void Gamestate_ProcessEvent(struct Game* game, struct GamestateResources* data,
@@ -276,40 +273,40 @@ void Gamestate_ProcessEvent(struct Game* game, struct GamestateResources* data,
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		ev->keyboard.keycode == ALLEGRO_KEY_A) {
-		IsGoodPressed(data->player1->rythmPulse, data->player1, data, left);
+		IsGoodPressed(data->player1->rhythmPulse, data->player1, data, left);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_S)) {
-		IsGoodPressed(data->player1->rythmPulse, data->player1, data, down);
+		IsGoodPressed(data->player1->rhythmPulse, data->player1, data, down);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_W)) {
-		IsGoodPressed(data->player1->rythmPulse, data->player1, data, up);
+		IsGoodPressed(data->player1->rhythmPulse, data->player1, data, up);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_D)) {
-		IsGoodPressed(data->player1->rythmPulse, data->player1, data, right);
+		IsGoodPressed(data->player1->rhythmPulse, data->player1, data, right);
 	}
 
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		ev->keyboard.keycode == ALLEGRO_KEY_LEFT) {
-		IsGoodPressed(data->player2->rythmPulse, data->player2, data, left);
+		IsGoodPressed(data->player2->rhythmPulse, data->player2, data, left);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_DOWN)) {
-		IsGoodPressed(data->player2->rythmPulse, data->player2, data, down);
+		IsGoodPressed(data->player2->rhythmPulse, data->player2, data, down);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_UP)) {
-		IsGoodPressed(data->player2->rythmPulse, data->player2, data, up);
+		IsGoodPressed(data->player2->rhythmPulse, data->player2, data, up);
 	}
 	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) &&
 		(ev->keyboard.keycode == ALLEGRO_KEY_RIGHT)) {
-		IsGoodPressed(data->player2->rythmPulse, data->player2, data, right);
+		IsGoodPressed(data->player2->rhythmPulse, data->player2, data, right);
 	}
 }
 
-void CarveMaze(char* maze, int width, int height, int x, int y) {
+static void CarveMaze(char* maze, int width, int height, int x, int y) {
 	int x1, y1;
 	int x2, y2;
 	int dx, dy;
@@ -354,7 +351,7 @@ void CarveMaze(char* maze, int width, int height, int x, int y) {
 }
 
 /* Generate maze in matrix maze with size width, height. */
-void GenerateMaze(char* maze, int width, int height) {
+static void GenerateMaze(char* maze, int width, int height) {
 	int x, y;
 
 	/* Initialize the maze. */
@@ -376,7 +373,7 @@ void GenerateMaze(char* maze, int width, int height) {
 }
 
 /* Display the maze. */
-void ShowMaze(const char* maze, int width, int height) {
+static void ShowMaze(const char* maze, int width, int height) {
 	int x, y;
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
@@ -422,63 +419,65 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	data->player1 = malloc(sizeof(struct Player));
 	data->player2 = malloc(sizeof(struct Player));
 	data->player1->text = "";
-	data->player1->rythmPulse = malloc(sizeof(struct RythmPulse));
-	data->player1->rythmPulse->timer = 0;
+	data->player1->rhythmPulse = malloc(sizeof(struct RhythmPulse));
+	data->player1->rhythmPulse->timer = 0;
 	data->player1->score = 0;
 
 	data->player1->player = al_load_bitmap(GetDataFilePath(game, "Sprites/swinka_kolor.png"));
 	data->player2->player = al_load_bitmap(GetDataFilePath(game, "Sprites/swinka_czb.png"));
 	data->player2->text = "";
-	data->player2->rythmPulse = malloc(sizeof(struct RythmPulse));
-	data->player2->rythmPulse->timer = 0;
+	data->player2->rhythmPulse = malloc(sizeof(struct RhythmPulse));
+	data->player2->rhythmPulse->timer = 0;
 	data->player2->score = 0;
 	data->map = malloc(MAZE_WIDGTH * MAZE_HIGHT * sizeof(char));
 	GenerateMaze(data->map, MAZE_WIDGTH, MAZE_HIGHT);
 	ShowMaze(data->map, MAZE_WIDGTH, MAZE_HIGHT);
-	struct RythmPulse* pulse = data->player1->rythmPulse;
+	struct RhythmPulse* pulse = data->player1->rhythmPulse;
 	pulse->status = -1;
 	pulse->timer = 0;
 	int i;
 	for (i = 0; i < 10; i++) {
-		pulse->next = malloc(sizeof(struct RythmPulse));
+		pulse->next = malloc(sizeof(struct RhythmPulse));
 		pulse = pulse->next;
 		pulse->timer = (float)i - 1;
 		pulse->status = -1;
 	}
 	pulse->next = NULL;
 
-	struct RythmPulse* pulse2 = data->player2->rythmPulse;
+	struct RhythmPulse* pulse2 = data->player2->rhythmPulse;
 	pulse2->status = -1;
 	pulse2->timer = 0;
 	for (i = 0; i < 10; i++) {
-		pulse2->next = malloc(sizeof(struct RythmPulse));
+		pulse2->next = malloc(sizeof(struct RhythmPulse));
 		pulse2 = pulse2->next;
 		pulse2->timer = (float)i - 1;
 		pulse2->status = -1;
 	}
 	pulse2->next = NULL;
-	data->player1->x =1;
-	data->player1->y =0;
-	data->player2->x =1;
-	data->player2->y =0;
+	data->player1->x = 1;
+	data->player1->y = 0;
+	data->player2->x = 1;
+	data->player2->y = 0;
 	int j;
-	char flag=0;
-	for(i=MAZE_WIDGTH-1;i>=0;i--) {
-		for (j = MAZE_HIGHT - 1; j >= 0; j--)
-			if (data->map[i + (j) * MAZE_WIDGTH] != 1) {
+	char flag = 0;
+	for (i = MAZE_WIDGTH - 1; i >= 0; i--) {
+		for (j = MAZE_HIGHT - 1; j >= 0; j--) {
+			if (data->map[i + (j)*MAZE_WIDGTH] != 1) {
 				data->xGrass = i;
 				data->yGrass = j;
-				flag=1;
+				flag = 1;
 				break;
 			}
-		if(flag)
+		}
+		if (flag) {
 			break;
+		}
 	}
 
 	return data;
 }
 
-void FreePulse(struct RythmPulse* pulse) {
+static void FreePulse(struct RhythmPulse* pulse) {
 	if (pulse->next != NULL) {
 		FreePulse(pulse->next);
 	}
@@ -490,8 +489,8 @@ void Gamestate_Unload(struct Game* game, struct GamestateResources* data) {
 	// Good place for freeing all allocated memory and resources.
 
 	al_destroy_font(data->font);
-	FreePulse(data->player1->rythmPulse);
-	FreePulse(data->player2->rythmPulse);
+	FreePulse(data->player1->rhythmPulse);
+	FreePulse(data->player2->rhythmPulse);
 	free(data->player1);
 	free(data->player2);
 	free(data->map);
