@@ -20,7 +20,10 @@
 
 struct CommonResources {
 	// Fill in with common data accessible from all gamestates.
-	bool unused;
+	struct {
+		ALLEGRO_VOICE* v;
+		ALLEGRO_MIXER *mixer, *voice, *fx, *music;
+	} audio;
 };
 
 struct CommonResources* CreateGameData(struct Game* game);
