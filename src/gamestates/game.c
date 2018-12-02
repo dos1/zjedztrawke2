@@ -22,8 +22,8 @@
 #include <libsuperderpy.h>
 
 #define SPEED 1.1
-#define MAZE_WIDTH 6
-#define MAZE_HEIGHT 4
+#define MAZE_WIDTH 20
+#define MAZE_HEIGHT 20
 
 enum direction {
 	up,
@@ -57,7 +57,7 @@ struct GamestateResources {
 
 	unsigned int pos1, pos2;
 
-	ALLEGRO_SAMPLE *music_sample, *ding_sample, *tada_sample, *no_sample;
+	ALLEGRO_SAMPLE *music_sample, *ding_sample, *tada_sample, *no_sample, *wrong_way;
 
 	bool ended;
 	struct Player* winner;
@@ -71,7 +71,7 @@ struct Player {
 	ALLEGRO_BITMAP* player;
 	int score;
 	struct RhythmPulse* rhythmPulse;
-	ALLEGRO_SAMPLE_INSTANCE *music, *ding, *tada, *no;
+	ALLEGRO_SAMPLE_INSTANCE *music, *ding, *tada, *no, *wrong_way;
 };
 
 int Gamestate_ProgressCount = 29; // number of loading steps as reported by Gamestate_Load
@@ -97,13 +97,17 @@ static void IsGoodPressed(struct Game* game, struct RhythmPulse* pulse, struct P
 			if (Abs(point) <= 0.05f) {
 				player->text = "Perfect!";
 			}
-
+            char flag =1;
 			switch (direction) {
 				case up:
 					if (player->y > 0) {
 						if (data->map[player->x + (player->y - 1) * MAZE_WIDTH] != 1) {
 							player->y--;
 							player->angle = 1.5 * ALLEGRO_PI;
+                            al_stop_sample_instance(player->ding);
+                            al_set_sample_instance_speed(player->ding, 1.0 - Abs(point));
+                            al_play_sample_instance(player->ding);
+                            flag=0;
 						}
 					}
 					break;
@@ -112,6 +116,10 @@ static void IsGoodPressed(struct Game* game, struct RhythmPulse* pulse, struct P
 						if (data->map[player->x + (player->y + 1) * MAZE_WIDTH] != 1) {
 							player->y++;
 							player->angle = 0.5 * ALLEGRO_PI;
+                            al_stop_sample_instance(player->ding);
+                            al_set_sample_instance_speed(player->ding, 1.0 - Abs(point));
+                            al_play_sample_instance(player->ding);
+                            flag=0;
 						}
 					}
 					break;
@@ -120,6 +128,10 @@ static void IsGoodPressed(struct Game* game, struct RhythmPulse* pulse, struct P
 						if (data->map[player->x - 1 + player->y * MAZE_WIDTH] != 1) {
 							player->x--;
 							player->angle = ALLEGRO_PI;
+                            al_stop_sample_instance(player->ding);
+                            al_set_sample_instance_speed(player->ding, 1.0 - Abs(point));
+                            al_play_sample_instance(player->ding);
+                            flag=0;
 						}
 					}
 					break;
@@ -128,13 +140,20 @@ static void IsGoodPressed(struct Game* game, struct RhythmPulse* pulse, struct P
 						if (data->map[player->x + 1 + player->y * MAZE_WIDTH] != 1) {
 							player->x++;
 							player->angle = 0;
+                            al_stop_sample_instance(player->ding);
+                            al_set_sample_instance_speed(player->ding, 1.0 - Abs(point));
+                            al_play_sample_instance(player->ding);
+                            flag=0;
 						}
 					}
 					break;
 			}
-			al_stop_sample_instance(player->ding);
-			al_set_sample_instance_speed(player->ding, 1.0 - Abs(point));
-			al_play_sample_instance(player->ding);
+            if( flag)
+            {
+                al_stop_sample_instance(player->wrong_way);
+                al_set_sample_instance_speed(player->wrong_way, 1.0 - Abs(point));
+                al_play_sample_instance(player->wrong_way);
+            }
 			if (player->x == data->xGrass && player->y == data->yGrass) {
 				// winning condition
 				data->ended = true;
@@ -198,10 +217,11 @@ static void DrawMap(struct Player* player, struct Player* otherPlayer,
 }
 
 static void DeleteDeltaTimeFromPulse(struct RhythmPulse* pulse, float deltaTime,
-	struct Player* data) {
+	struct Player* data, struct Game* game) {
 	float progress = (data->score) / 20000.0f;
+	float speed = SPEED * ((progress + 1));
 	float delatTime = (deltaTime * SPEED) * ((progress + 1));
-	al_set_sample_instance_speed(data->music, delatTime / deltaTime);
+	al_set_sample_instance_speed(data->music, speed/1.165);
 	if (pulse->timer > -0.25f && pulse->timer - delatTime < -0.25f &&
 		pulse->status == -1) {
 		pulse->status = 0;
@@ -216,7 +236,7 @@ static void DeleteDeltaTimeFromPulse(struct RhythmPulse* pulse, float deltaTime,
 	pulse->timer -= delatTime;
 
 	if (pulse->next) {
-		DeleteDeltaTimeFromPulse(pulse->next, deltaTime, data);
+		DeleteDeltaTimeFromPulse(pulse->next, deltaTime, data,game);
 	}
 }
 
@@ -242,8 +262,8 @@ void Gamestate_Logic(struct Game* game, struct GamestateResources* data,
 		return;
 	}
 
-	DeleteDeltaTimeFromPulse(data->player2->rhythmPulse, delta, data->player2);
-	DeleteDeltaTimeFromPulse(data->player1->rhythmPulse, delta, data->player1);
+	DeleteDeltaTimeFromPulse(data->player2->rhythmPulse, delta, data->player2,game);
+	DeleteDeltaTimeFromPulse(data->player1->rhythmPulse, delta, data->player1,game);
 	if (data->player1->rhythmPulse->timer < -5.0f) {
 		struct RhythmPulse* pulse = data->player1->rhythmPulse;
 		data->player1->rhythmPulse = data->player1->rhythmPulse->next;
@@ -564,6 +584,15 @@ void* Gamestate_Load(struct Game* game, void (*progress)(struct Game*)) {
 	al_attach_sample_instance_to_mixer(data->player2->ding, game->data->audio.fx);
 	al_set_sample_instance_playmode(data->player2->ding, ALLEGRO_PLAYMODE_ONCE);
 	(*progress)(game);
+
+    data->wrong_way = al_load_sample(GetDataFilePath(game, "efekt.flac"));
+    data->player1->wrong_way = al_create_sample_instance(data->wrong_way);
+    al_attach_sample_instance_to_mixer(data->player1->wrong_way, game->audio.fx);
+    al_set_sample_instance_playmode(data->player1->wrong_way, ALLEGRO_PLAYMODE_ONCE);
+
+    data->player2->wrong_way = al_create_sample_instance(data->wrong_way);
+    al_attach_sample_instance_to_mixer(data->player2->wrong_way, game->data->audio.fx);
+    al_set_sample_instance_playmode(data->player2->wrong_way, ALLEGRO_PLAYMODE_ONCE);
 
 	data->no_sample = al_load_sample(GetDataFilePath(game, "no.flac"));
 	data->player1->no = al_create_sample_instance(data->no_sample);
