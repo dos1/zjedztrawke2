@@ -79,16 +79,17 @@ struct CommonResources* CreateGameData(struct Game* game) {
 	depth = ALLEGRO_AUDIO_DEPTH_INT16;
 #endif
 	data->audio.v = al_create_voice(44100, depth, ALLEGRO_CHANNEL_CONF_2);
-	if (!game->audio.v) {
+	if (!data->audio.v) {
 		// fallback
 		depth = (depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) ? ALLEGRO_AUDIO_DEPTH_INT16 : ALLEGRO_AUDIO_DEPTH_FLOAT32;
 		data->audio.v = al_create_voice(44100, depth, ALLEGRO_CHANNEL_CONF_2);
 	}
+	ALLEGRO_VOICE* voice = data->audio.v ? data->audio.v : game->audio.v;
 	data->audio.mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
 	data->audio.fx = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
 	data->audio.music = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
 	data->audio.voice = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-	al_attach_mixer_to_voice(data->audio.mixer, data->audio.v);
+	al_attach_mixer_to_voice(data->audio.mixer, voice);
 	al_attach_mixer_to_mixer(data->audio.fx, data->audio.mixer);
 	al_attach_mixer_to_mixer(data->audio.music, data->audio.mixer);
 	al_attach_mixer_to_mixer(data->audio.voice, data->audio.mixer);
