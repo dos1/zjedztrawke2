@@ -39,16 +39,15 @@ struct GamestateResources {
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
 
-char* texts[] = {"Play", "Options", "Extras", "Quit",
-	"Fullscreen: on", "Music: on", "Sounds: on", "Voice: on", "Back",
-	"Fullscreen: off", "Music: off", "Sounds: off", "Voice: off", "Back",
-	"Check out Chimpology", "Check out KARCZOCH", "Check out all SGJ16 games", "Back"};
+static char* texts[] = {"Play", "Options", "Extras", "Quit",
+	"Fullscreen: on", "Music: on", "Sounds: on", "Voice: on", "Pan to stereo channels: on", "Back",
+	"Fullscreen: off", "Music: off", "Sounds: off", "Voice: off", "Pan to stereo channels: off", "Back"};
 
 static void AdjustOption(struct Game* game, struct GamestateResources* data) {
 	switch (data->option) {
 		case 4:
 			if (!game->config.fullscreen) {
-				data->option += 5;
+				data->option += 6;
 			}
 #ifdef ALLEGRO_ANDROID
 			data->option++;
@@ -56,50 +55,56 @@ static void AdjustOption(struct Game* game, struct GamestateResources* data) {
 			break;
 		case 5:
 			if (!game->config.music) {
-				data->option += 5;
+				data->option += 6;
 			}
 			break;
 		case 6:
 			if (!game->config.fx) {
-				data->option += 5;
+				data->option += 6;
 			}
 			break;
 		case 7:
 			if (!game->config.voice) {
-				data->option += 5;
+				data->option += 6;
 			}
 			break;
-		case 9:
+		case 8:
+			if (!game->data->pan) {
+				data->option += 6;
+			}
+		case 10:
 			if (game->config.fullscreen) {
-				data->option -= 5;
+				data->option -= 6;
 			}
 #ifdef ALLEGRO_ANDROID
 			data->option++;
 #endif
 			break;
-		case 10:
-			if (game->config.music) {
-				data->option -= 5;
-			}
-			break;
 		case 11:
-			if (game->config.fx) {
-				data->option -= 5;
+			if (game->config.music) {
+				data->option -= 6;
 			}
 			break;
 		case 12:
-			if (game->config.voice) {
-				data->option -= 5;
+			if (game->config.fx) {
+				data->option -= 6;
 			}
 			break;
+		case 13:
+			if (game->config.voice) {
+				data->option -= 6;
+			}
+			break;
+		case 14:
+			if (game->data->pan) {
+				data->option -= 6;
+			}
 	}
 }
 
 void Gamestate_Logic(struct Game* game, struct GamestateResources* data, double delta) {
 	// Called 60 times per second. Here you should do all your game logic.
-
 }
-
 
 void Gamestate_Tick(struct Game* game, struct GamestateResources* data) {
 	// Called 60 times per second (by default). Here you should do all your game
@@ -139,22 +144,6 @@ void Gamestate_Draw(struct Game* game, struct GamestateResources* data) {
 	}
 }
 
-static void OpenBrowser(char* url) {
-	char* cmd;
-#ifdef ALLEGRO_WINDOWS
-	cmd = "start \"\" \"%s\"";
-#elif defined(ALLEGRO_MACOSX)
-	cmd = "open \"%s\"";
-#elif defined(ALLEGRO_ANDROID)
-	cmd = "am start --user 0 -a android.intent.action.VIEW -d \"%s\"";
-#else
-	cmd = "xdg-open \"%s\"";
-#endif
-	char command[255];
-	snprintf(command, 255, cmd, url);
-	system(command);
-}
-
 static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 	al_stop_sample_instance(game->data->button);
 	al_play_sample_instance(game->data->button);
@@ -175,7 +164,7 @@ static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 			UnloadAllGamestates(game);
 			break;
 		case 4:
-		case 9:
+		case 10:
 			// fullscreen
 			game->config.fullscreen = !game->config.fullscreen;
 			if (game->config.fullscreen) {
@@ -192,7 +181,7 @@ static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 			Speak(game, texts[data->option]);
 			break;
 		case 5:
-		case 10:
+		case 11:
 			// music
 			game->config.music = game->config.music ? 0 : 10;
 			SetConfigOption(game, "SuperDerpy", "music", game->config.music ? "10" : "0");
@@ -201,7 +190,7 @@ static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 			Speak(game, texts[data->option]);
 			break;
 		case 6:
-		case 11:
+		case 12:
 			// sounds
 			game->config.fx = game->config.fx ? 0 : 10;
 			SetConfigOption(game, "SuperDerpy", "fx", game->config.fx ? "10" : "0");
@@ -210,7 +199,7 @@ static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 			Speak(game, texts[data->option]);
 			break;
 		case 7:
-		case 12:
+		case 13:
 			// voices
 			game->config.voice = game->config.voice ? 0 : 10;
 			SetConfigOption(game, "SuperDerpy", "voice", game->config.voice ? "10" : "0");
@@ -218,24 +207,15 @@ static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 			AdjustOption(game, data);
 			Speak(game, texts[data->option]);
 			break;
-		case 14:
-			// chimpology
-			OpenBrowser("https://mgz.itch.io/chimpology");
-			UnloadAllGamestates(game);
-			break;
-		case 15:
-			// karczoch
-			OpenBrowser("https://dosowisko.net/karczoch/");
-			UnloadAllGamestates(game);
-			break;
-		case 16:
-			// sgj16
-			OpenBrowser("https://itch.io/jam/sgj16");
-			UnloadAllGamestates(game);
-			break;
 		case 8:
-		case 13:
-		case 17:
+		case 14:
+			game->data->pan = !game->data->pan;
+			SetConfigOption(game, "ZjedzTrawke2", "pan", game->data->pan ? "1" : "0");
+			AdjustOption(game, data);
+			Speak(game, texts[data->option]);
+			break;
+		case 9:
+		case 15:
 			data->option = 0;
 			Speak(game, texts[data->option]);
 			break;
@@ -247,23 +227,20 @@ static void MenuLeft(struct Game* game, struct GamestateResources* data) {
 	al_play_sample_instance(game->data->button);
 	data->blink = 0;
 	data->option--;
-	if (data->option == 13) {
-		data->option = 17;
-	}
-	if (data->option == 8) {
-		data->option = 13;
+	if (data->option == 9) {
+		data->option = 15;
 	}
 #ifdef ALLEGRO_ANDROID
-	if (data->option == 9) {
-		data->option = 13;
+	if (data->option == 10) {
+		data->option = 15;
 	}
 #endif
 	if (data->option == 3) {
-		data->option = 8;
+		data->option = 9;
 	}
 #ifdef ALLEGRO_ANDROID
 	if (data->option == 4) {
-		data->option = 8;
+		data->option = 9;
 	}
 #endif
 	if (data->option == -1) {
@@ -286,20 +263,17 @@ static void MenuRight(struct Game* game, struct GamestateResources* data) {
 	if (data->option == 4) {
 		data->option = 0;
 	}
-	if (data->option == 9) {
+	if (data->option == 10) {
 		data->option = 4;
 #ifdef ALLEGRO_ANDROID
 		data->option++;
 #endif
 	}
-	if (data->option == 14) {
-		data->option = 9;
+	if (data->option == 15) {
+		data->option = 10;
 #ifdef ALLEGRO_ANDROID
 		data->option++;
 #endif
-	}
-	if (data->option == 18) {
-		data->option = 14;
 	}
 
 	if (data->option == 2) {

@@ -633,7 +633,27 @@ void Gamestate_Unload(struct Game* game, struct GamestateResources* data) {
 
 	al_destroy_sample_instance(data->player1->music);
 	al_destroy_sample_instance(data->player2->music);
+	al_destroy_sample_instance(data->player1->ding);
+	al_destroy_sample_instance(data->player2->ding);
+	al_destroy_sample_instance(data->player1->tada);
+	al_destroy_sample_instance(data->player2->tada);
+	al_destroy_sample_instance(data->player1->no);
+	al_destroy_sample_instance(data->player2->no);
+	al_destroy_sample_instance(data->player1->wrong_way);
+	al_destroy_sample_instance(data->player2->wrong_way);
 	al_destroy_sample(data->music_sample);
+	al_destroy_sample(data->ding_sample);
+	al_destroy_sample(data->tada_sample);
+	al_destroy_sample(data->no_sample);
+	al_destroy_sample(data->wrong_way);
+
+	al_destroy_bitmap(data->player1->player);
+	al_destroy_bitmap(data->player2->player);
+
+	al_destroy_bitmap(data->pulseBitmap);
+	al_destroy_bitmap(data->pointer);
+	al_destroy_bitmap(data->grass);
+	al_destroy_bitmap(data->tile);
 
 	al_destroy_font(data->font);
 	FreePulse(data->player1->rhythmPulse);
@@ -650,17 +670,22 @@ void Gamestate_Start(struct Game* game, struct GamestateResources* data) {
 	al_play_sample_instance(data->player1->music);
 	al_play_sample_instance(data->player2->music);
 
-	al_set_sample_instance_pan(data->player1->music, -1.0);
-	al_set_sample_instance_pan(data->player2->music, 1.0);
+	if (game->data->pan) {
+		al_set_sample_instance_pan(data->player1->music, -1.0);
+		al_set_sample_instance_pan(data->player2->music, 1.0);
 
-	al_set_sample_instance_pan(data->player1->ding, -1.0);
-	al_set_sample_instance_pan(data->player2->ding, 1.0);
+		al_set_sample_instance_pan(data->player1->ding, -1.0);
+		al_set_sample_instance_pan(data->player2->ding, 1.0);
 
-	al_set_sample_instance_pan(data->player1->no, -1.0);
-	al_set_sample_instance_pan(data->player2->no, 1.0);
+		al_set_sample_instance_pan(data->player1->no, -1.0);
+		al_set_sample_instance_pan(data->player2->no, 1.0);
 
-	al_set_sample_instance_pan(data->player1->tada, -1.0);
-	al_set_sample_instance_pan(data->player2->tada, 1.0);
+		al_set_sample_instance_pan(data->player1->tada, -1.0);
+		al_set_sample_instance_pan(data->player2->tada, 1.0);
+
+		al_set_sample_instance_pan(data->player1->wrong_way, -1.0);
+		al_set_sample_instance_pan(data->player2->wrong_way, 1.0);
+	}
 }
 
 void Gamestate_Stop(struct Game* game, struct GamestateResources* data) {

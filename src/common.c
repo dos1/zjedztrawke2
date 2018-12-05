@@ -102,10 +102,14 @@ struct CommonResources* CreateGameData(struct Game* game) {
 	data->button = al_create_sample_instance(data->button_sample);
 	al_attach_sample_instance_to_mixer(data->button, game->audio.fx);
 
+	data->pan = strtol(GetConfigOptionDefault(game, "ZjedzTrawke2", "pan", "1"), NULL, 10);
+
 	return data;
 }
 
 void DestroyGameData(struct Game* game) {
+	al_destroy_sample_instance(game->data->button);
+	al_destroy_sample(game->data->button_sample);
 	al_destroy_mixer(game->data->audio.fx);
 	al_destroy_mixer(game->data->audio.music);
 	al_destroy_mixer(game->data->audio.voice);

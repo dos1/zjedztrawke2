@@ -27,6 +27,7 @@ struct CommonResources {
 	bool touch;
 	ALLEGRO_SAMPLE* button_sample;
 	ALLEGRO_SAMPLE_INSTANCE* button;
+	bool pan;
 };
 
 void Speak(struct Game* game, char* text);
