@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2018 Sebastian Krzyszkowiak <dos@dosowisko.net> -->
+<component type="desktop-application">
+  <id>net.dosowisko.zjedztrawke2</id>
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <name>Zjedz Trawkę 2</name>
+  <summary>A rhythm game about a guinea pig.</summary>
+
+  <description>
+    <p>
+Very bad hamsters from the Pruszkowski's Hamsters evil band stole tasty grass from a guinea pig and hid it in a maze.  Who's going to eat the grass first - a guinea pig or an evil hamster?
+    </p>
+    <p>
+Two-person local multiplayer rhythm game with audio beat and three steps ahead. Enjoy!
+    </p>
+    <p>
+By default, the music for the left player plays in the left channel, while the music for the right player plays in the right channel. If your operating system allows that, you can redirect audio outputs to separate audio devices.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">zjedztrawke2.desktop</launchable>
+
+  <developer_name>IOFist / dosowisko.net / Holy Pangolin</developer_name>
+
+  <update_contact>dos_AT_dosowisko.net</update_contact>
+
+  <provides>
+    <binary>zjedztrawke2</binary>
+  </provides>
+
+</component>

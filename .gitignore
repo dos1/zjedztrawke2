@@ -19,4 +19,5 @@ SuperDerpy.ini
 ehthumbs.db
 Thumbs.db
 cmake-build-*
+.flatpak-builder
 imgui.ini
