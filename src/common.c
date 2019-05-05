@@ -60,17 +60,8 @@ bool GlobalEventHandler(struct Game* game, ALLEGRO_EVENT* ev) {
 struct CommonResources* CreateGameData(struct Game* game) {
 	struct CommonResources* data = calloc(1, sizeof(struct CommonResources));
 
-	int samplerate = strtol(GetConfigOptionDefault(game, "SuperDerpy", "samplerate", "44100"), NULL, 10);
-	ALLEGRO_AUDIO_DEPTH depth = ALLEGRO_AUDIO_DEPTH_FLOAT32;
-#ifdef ALLEGRO_ANDROID
-	depth = ALLEGRO_AUDIO_DEPTH_INT16;
-#endif
-	data->audio.v = al_create_voice(samplerate, depth, ALLEGRO_CHANNEL_CONF_2);
-	if (!data->audio.v) {
-		// fallback
-		depth = (depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) ? ALLEGRO_AUDIO_DEPTH_INT16 : ALLEGRO_AUDIO_DEPTH_FLOAT32;
-		data->audio.v = al_create_voice(samplerate, depth, ALLEGRO_CHANNEL_CONF_2);
-	}
+	int samplerate = strtol(GetConfigOptionDefault(game, "SuperDerpy", "samplerate", "48000"), NULL, 10);
+	data->audio.v = al_create_voice(samplerate, al_get_voice_depth(game->audio.v), ALLEGRO_CHANNEL_CONF_2);
 	ALLEGRO_VOICE* voice = data->audio.v ? data->audio.v : game->audio.v;
 	data->audio.mixer = al_create_mixer(samplerate, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
 	data->audio.fx = al_create_mixer(samplerate, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
