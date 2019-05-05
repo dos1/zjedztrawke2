@@ -72,6 +72,7 @@ static void AdjustOption(struct Game* game, struct GamestateResources* data) {
 			if (!game->data->pan) {
 				data->option += 6;
 			}
+			break;
 		case 10:
 			if (game->config.fullscreen) {
 				data->option -= 6;
@@ -99,6 +100,7 @@ static void AdjustOption(struct Game* game, struct GamestateResources* data) {
 			if (game->data->pan) {
 				data->option -= 6;
 			}
+			break;
 	}
 }
 
@@ -166,17 +168,7 @@ static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 		case 4:
 		case 10:
 			// fullscreen
-			game->config.fullscreen = !game->config.fullscreen;
-			if (game->config.fullscreen) {
-				SetConfigOption(game, "SuperDerpy", "fullscreen", "1");
-				al_hide_mouse_cursor(game->display);
-			} else {
-				SetConfigOption(game, "SuperDerpy", "fullscreen", "0");
-				al_show_mouse_cursor(game->display);
-			}
-			al_set_display_flag(game->display, ALLEGRO_FULLSCREEN_WINDOW, game->config.fullscreen);
-			SetupViewport(game, game->viewport_config);
-			PrintConsole(game, "Fullscreen toggled");
+			ToggleFullscreen(game);
 			AdjustOption(game, data);
 			Speak(game, texts[data->option]);
 			break;
@@ -186,6 +178,7 @@ static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 			game->config.music = game->config.music ? 0 : 10;
 			SetConfigOption(game, "SuperDerpy", "music", game->config.music ? "10" : "0");
 			al_set_mixer_gain(game->audio.music, game->config.music / 10.0);
+			al_set_mixer_gain(game->data->audio.music, game->config.music / 10.0);
 			AdjustOption(game, data);
 			Speak(game, texts[data->option]);
 			break;
@@ -195,6 +188,7 @@ static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 			game->config.fx = game->config.fx ? 0 : 10;
 			SetConfigOption(game, "SuperDerpy", "fx", game->config.fx ? "10" : "0");
 			al_set_mixer_gain(game->audio.fx, game->config.fx / 10.0);
+			al_set_mixer_gain(game->data->audio.fx, game->config.fx / 10.0);
 			AdjustOption(game, data);
 			Speak(game, texts[data->option]);
 			break;
@@ -204,6 +198,7 @@ static void MenuSelect(struct Game* game, struct GamestateResources* data) {
 			game->config.voice = game->config.voice ? 0 : 10;
 			SetConfigOption(game, "SuperDerpy", "voice", game->config.voice ? "10" : "0");
 			al_set_mixer_gain(game->audio.voice, game->config.voice / 10.0);
+			al_set_mixer_gain(game->data->audio.voice, game->config.voice / 10.0);
 			AdjustOption(game, data);
 			Speak(game, texts[data->option]);
 			break;
@@ -227,6 +222,7 @@ static void MenuLeft(struct Game* game, struct GamestateResources* data) {
 	al_play_sample_instance(game->data->button);
 	data->blink = 0;
 	data->option--;
+
 	if (data->option == 9) {
 		data->option = 15;
 	}
@@ -260,6 +256,7 @@ static void MenuRight(struct Game* game, struct GamestateResources* data) {
 	al_play_sample_instance(game->data->button);
 	data->blink = 0;
 	data->option++;
+
 	if (data->option == 4) {
 		data->option = 0;
 	}
@@ -269,7 +266,7 @@ static void MenuRight(struct Game* game, struct GamestateResources* data) {
 		data->option++;
 #endif
 	}
-	if (data->option == 15) {
+	if (data->option == 16) {
 		data->option = 10;
 #ifdef ALLEGRO_ANDROID
 		data->option++;

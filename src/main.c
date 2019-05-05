@@ -37,10 +37,16 @@ int main(int argc, char** argv) {
 	al_set_org_name("dosowisko.net");
 	al_set_app_name(LIBSUPERDERPY_GAMENAME_PRETTY);
 
-	struct Game* game = libsuperderpy_init(argc, argv, LIBSUPERDERPY_GAMENAME, (struct Viewport){320, 180});
+	struct Game* game = libsuperderpy_init(argc, argv, LIBSUPERDERPY_GAMENAME,
+		(struct Params){
+			320,
+			180,
+			.handlers = (struct Handlers){
+				.event = GlobalEventHandler,
+				.destroy = DestroyGameData,
+			},
+		});
 	if (!game) { return 1; }
-
-	al_set_window_title(game->display, LIBSUPERDERPY_GAMENAME_PRETTY);
 
 	LoadGamestate(game, "dosowisko");
 	LoadGamestate(game, "iofist");
@@ -49,10 +55,7 @@ int main(int argc, char** argv) {
 
 	game->data = CreateGameData(game);
 
-	game->handlers.event = GlobalEventHandler;
-	game->handlers.destroy = DestroyGameData;
-
-	EnableCompositor(game, NULL);
+	al_hide_mouse_cursor(game->display);
 
 	return libsuperderpy_run(game);
 }
